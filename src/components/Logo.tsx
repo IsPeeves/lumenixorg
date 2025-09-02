@@ -3,29 +3,44 @@ import React from 'react';
 interface LogoProps {
   className?: string;
   showText?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   theme?: 'light' | 'dark';
 }
 
 const Logo: React.FC<LogoProps> = ({ className = '', showText = true, size = 'md', theme = 'dark' }) => {
   const sizeClasses = {
     sm: { wrapper: 'h-8', icon: 'h-6 w-6', text: 'text-lg' },
-    md: { wrapper: 'h-10', icon: 'h-8 w-8', text: 'text-xl' },
-    lg: { wrapper: 'h-12', icon: 'h-10 w-10', text: 'text-2xl' },
+    md: { wrapper: 'h-12', icon: 'h-10 w-10', text: 'text-xl' },
+    lg: { wrapper: 'h-16', icon: 'h-14 w-14', text: 'text-2xl' },
+    xl: { wrapper: 'h-20', icon: 'h-18 w-18', text: 'text-3xl' },
   };
 
-  const iconColor = theme === 'dark' ? '#482f6c' : '#FFFFFF';
+  const iconColor = theme === 'dark' ? '#7C3AED' : '#FFFFFF';
   const textColor = theme === 'dark' ? 'text-gray-900' : 'text-white';
 
   return (
-    <div className={`flex items-center space-x-2 ${className} ${sizeClasses[size].wrapper}`}>
+    <div className={`flex items-center space-x-3 ${className} ${sizeClasses[size].wrapper}`}>
       <svg
         className={sizeClasses[size].icon}
-        viewBox="0 0 24 24"
-        fill={iconColor}
+        viewBox="0 0 100 100"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path d="M12 2.5a.75.75 0 01.75.75v2a.75.75 0 01-1.5 0v-2a.75.75 0 01.75-.75zM12 18.75a.75.75 0 01.75.75v2a.75.75 0 01-1.5 0v-2a.75.75 0 01.75-.75zM5.47 5.47a.75.75 0 011.06 0l1.414 1.414a.75.75 0 11-1.06 1.06L5.47 6.53a.75.75 0 010-1.06zM17.071 17.071a.75.75 0 011.06 0l1.414 1.414a.75.75 0 01-1.06 1.06l-1.414-1.414a.75.75 0 010-1.06zM2.5 12a.75.75 0 01.75-.75h2a.75.75 0 010 1.5h-2a.75.75 0 01-.75-.75zM18.75 12a.75.75 0 01.75-.75h2a.75.75 0 010 1.5h-2a.75.75 0 01-.75-.75zM5.47 18.53a.75.75 0 010-1.06l1.414-1.414a.75.75 0 011.06 1.06L6.53 18.53a.75.75 0 01-1.06 0zM17.071 6.929a.75.75 0 010-1.06l1.414-1.414a.75.75 0 111.06 1.06l-1.414 1.414a.75.75 0 01-1.06 0zM12 7a5 5 0 100 10 5 5 0 000-10z" />
+        {/* Círculo principal roxo com borda */}
+        <circle cx="50" cy="50" r="47" fill={iconColor} stroke="white" strokeWidth="2"/>
+        
+        {/* Círculo interno claro (maior e mais visível) */}
+        <circle cx="50" cy="50" r="20" fill="#E5E7EB" opacity="0.6"/>
+        
+        {/* Linhas de luz em 8 direções (mais grossas) */}
+        <path d="M25 25L35 35" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M50 10V25" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M75 25L65 35" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M90 50H75" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M75 75L65 65" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M50 90V75" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M25 75L35 65" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M10 50H25" stroke="white" strokeWidth="4" strokeLinecap="round"/>
       </svg>
       {showText && (
         <span className={`font-bold ${textColor} ${sizeClasses[size].text}`}>

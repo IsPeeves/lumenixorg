@@ -116,7 +116,6 @@ const AdminLogin: React.FC = () => {
         
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Use as credenciais fornecidas pelo Supabase.
           </p>
         </div>
       </motion.div>

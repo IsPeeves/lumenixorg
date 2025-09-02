@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Search, Edit, Trash2, ExternalLink, Filter } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ExternalLink, Filter, AlertCircle } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import clsx from 'clsx';
 
 const ClientsModule: React.FC = () => {
-  const { clients, addClient, updateClient, deleteClient } = useData();
+  const { clients, addClient, updateClient, deleteClient, loading, error, detailedError } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
@@ -18,55 +18,102 @@ const ClientsModule: React.FC = () => {
     paymentStatus: 'Pendente' as const
   });
 
+  // Verificação de segurança para clients (igual ao ExpensesModule)
+  if (!Array.isArray(clients)) {
+    console.warn('⚠️ clients não é um array:', clients);
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <p className="text-gray-600">Erro ao carregar clientes</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando clientes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state específico para clients
+  if (detailedError?.clients) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+          <h3 className="text-red-800 font-medium">Erro ao carregar clientes</h3>
+        </div>
+        <p className="text-red-700 mt-2">{detailedError.clients}</p>
+      </div>
+    );
+  }
+
   const filteredClients = clients.filter(client => {
-    const matchesSearch = client.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+    // Usar apenas companyName que é o campo correto do banco
+    const clientName = client?.companyName || '';
+    const matchesSearch = clientName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || client.paymentStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const clientData = {
-      companyName: formData.companyName,
-      monthlyValue: parseFloat(formData.monthlyValue),
-      registrationDate: new Date().toISOString().split('T')[0],
-      dueDay: parseInt(formData.dueDay),
-      websiteLink: formData.websiteLink,
-      paymentStatus: formData.paymentStatus
-    };
-
-    if (editingClient) {
-      updateClient(editingClient.id, clientData);
-    } else {
-      addClient(clientData);
-    }
-
-    resetForm();
+  
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // Verificar se formData.companyName existe antes de usar
+  if (!formData.companyName || formData.companyName.trim() === '') {
+    alert('Nome da empresa é obrigatório');
+    return;
+  }
+  
+  // Corrigir os dados para corresponder ao tipo ClientInsert
+  const clientData = {
+    companyName: formData.companyName,
+    monthlyValue: parseFloat(formData.monthlyValue) || 0,
+    dueDay: parseInt(formData.dueDay) || 1,
+    websiteLink: formData.websiteLink || null,
+    paymentStatus: formData.paymentStatus
   };
 
-  const resetForm = () => {
-    setFormData({
-      companyName: '',
-      monthlyValue: '',
-      dueDay: '',
-      websiteLink: '',
-      paymentStatus: 'Pendente'
-    });
-    setEditingClient(null);
-    setShowModal(false);
-  };
+  if (editingClient) {
+    updateClient(editingClient.id, clientData);
+  } else {
+    addClient(clientData);
+  }
 
-  const handleEdit = (client: any) => {
-    setEditingClient(client);
-    setFormData({
-      companyName: client.companyName,
-      monthlyValue: client.monthlyValue.toString(),
-      dueDay: client.dueDay.toString(),
-      websiteLink: client.websiteLink,
-      paymentStatus: client.paymentStatus
-    });
-    setShowModal(true);
-  };
+  resetForm();
+};
+
+const resetForm = () => {
+  setFormData({
+    companyName: '',
+    monthlyValue: '',
+    dueDay: '',
+    websiteLink: '',
+    paymentStatus: 'Pendente'
+  });
+  setEditingClient(null);
+  setShowModal(false);
+};
+
+const handleEdit = (client: any) => {
+  setEditingClient(client);
+  setFormData({
+    companyName: client.companyName,
+    monthlyValue: client.monthlyValue?.toString() || '',
+    dueDay: client.dueDay?.toString() || '',
+    websiteLink: client.websiteLink || '',
+    paymentStatus: client.paymentStatus
+  });
+  setShowModal(true);
+};
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -147,7 +194,10 @@ const ClientsModule: React.FC = () => {
         >
           <h3 className="text-sm font-medium text-gray-600">Receita Mensal Total</h3>
           <p className="text-2xl font-bold text-green-600 mt-1">
-            R$ {clients.reduce((sum, client) => sum + client.monthlyValue, 0).toFixed(2).replace('.', ',')}
+            R$ {clients.reduce((sum, client) => {
+              const value = client?.monthlyValue || 0;
+              return sum + (typeof value === 'number' ? value : 0);
+            }, 0).toFixed(2).replace('.', ',')}
           </p>
         </motion.div>
         
@@ -200,13 +250,13 @@ const ClientsModule: React.FC = () => {
                     <div>
                       <div className="text-sm font-medium text-gray-900">{client.companyName}</div>
                       <div className="text-sm text-gray-500">
-                        Cadastrado em {new Date(client.registrationDate).toLocaleDateString('pt-BR')}
+                        Cadastrado em {new Date(client.created_at).toLocaleDateString('pt-BR')}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      R$ {client.monthlyValue.toFixed(2).replace('.', ',')}
+                      R$ {(client?.monthlyValue || 0).toFixed(2).replace('.', ',')}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
