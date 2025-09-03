@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Edit, Trash2, ExternalLink, GripVertical, Image } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
+import ImageUpload from './ImageUpload';
 
 const PortfolioModule: React.FC = () => {
   const { projects, addProject, updateProject, deleteProject, reorderProjects } = useData();
@@ -83,6 +84,14 @@ const PortfolioModule: React.FC = () => {
     }
   };
 
+  const handleImageChange = (imagePath: string) => {
+    setFormData(prev => ({ ...prev, image: imagePath }));
+  };
+
+  const handleImageRemove = () => {
+    setFormData(prev => ({ ...prev, image: '' }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -145,7 +154,7 @@ const PortfolioModule: React.FC = () => {
                     target.style.display = 'none';
                     target.parentElement?.classList.add('flex', 'items-center', 'justify-center');
                     const icon = document.createElement('div');
-                    icon.innerHTML = '<svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                    icon.innerHTML = '<svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 012 2v0a2 2 0 01-2 2H6a2 2 0 01-2-2v0a2 2 0 012-2z" /></svg>';
                     target.parentElement?.appendChild(icon);
                   }}
                 />
@@ -266,22 +275,12 @@ const PortfolioModule: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL da Imagem
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.image}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  placeholder="https://exemplo.com/imagem.jpg"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Use uma URL de imagem válida (JPG, PNG, WebP)
-                </p>
-              </div>
+              {/* Componente de Upload de Imagem */}
+              <ImageUpload
+                currentImage={formData.image}
+                onImageChange={handleImageChange}
+                onImageRemove={handleImageRemove}
+              />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -310,26 +309,6 @@ const PortfolioModule: React.FC = () => {
                   placeholder="Breve descrição do projeto..."
                 />
               </div>
-
-              {/* Preview */}
-              {formData.image && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Preview
-                  </label>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <img 
-                      src={formData.image} 
-                      alt="Preview"
-                      className="w-full h-32 object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="flex space-x-3 pt-4">
                 <button

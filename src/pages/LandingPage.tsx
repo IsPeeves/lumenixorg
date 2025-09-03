@@ -3,10 +3,11 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Menu, X, Globe, Zap, ChevronLeft, ChevronRight, Send, Phone, Mail, MapPin, Sun, User } from 'lucide-react';
 import Logo from '../components/Logo';
-import { supabase } from '../supabase';
-import { Project } from '../types';
+import { useData } from '../contexts/DataContext';
+import NeuralNetworkBackground from '../components/ui/NeuralNetworkBackground';
 
 const LandingPage: React.FC = () => {
+  const { projects, loading: loadingProjects } = useData();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState(0);
   const [formData, setFormData] = useState({
@@ -15,27 +16,12 @@ const LandingPage: React.FC = () => {
     message: ''
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      setLoadingProjects(true);
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('order', { ascending: true });
-      
-      if (error) {
-        console.error('Error fetching projects:', error);
-      } else {
-        setProjects(data || []);
-      }
-      setLoadingProjects(false);
-    };
-
-    fetchProjects();
-  }, []);
+    if (loadingProjects) return;
+    if (projects.length === 0) return;
+    setCurrentProject(0);
+  }, [loadingProjects, projects]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -137,8 +123,9 @@ const LandingPage: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="pt-16 min-h-screen flex items-center bg-gradient-to-br from-primary via-primary-dark to-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section id="home" className="pt-16 min-h-screen flex items-center relative overflow-hidden">
+        <NeuralNetworkBackground />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -183,15 +170,15 @@ const LandingPage: React.FC = () => {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-white rounded-3xl transform rotate-6 opacity-20"></div>
-                <div className="relative bg-white rounded-3xl p-8 shadow-2xl">
+                <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
                   <div className="space-y-4">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    <div className="h-32 bg-primary rounded-lg flex items-center justify-center">
-                      <Sun className="h-12 w-12 text-white animate-float" />
+                    <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                    <div className="h-4 bg-white/20 rounded w-1/2"></div>
+                    <div className="h-32 bg-gradient-to-br from-yellow-300/30 to-primary/30 rounded-lg flex items-center justify-center">
+                      <Sun className="h-12 w-12 text-yellow-300 animate-pulse" />
                     </div>
-                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-white/20 rounded w-5/6"></div>
+                    <div className="h-4 bg-white/20 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
@@ -297,7 +284,7 @@ const LandingPage: React.FC = () => {
               <div className="bg-gray-100 rounded-3xl p-8">
                 <div className="relative overflow-hidden rounded-2xl">
                   <img 
-                    src={projects[currentProject]?.image_url} 
+                    src={projects[currentProject]?.image} 
                     alt={projects[currentProject]?.title}
                     className="w-full h-64 md:h-96 object-cover"
                   />
@@ -389,7 +376,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">Telefone</p>
-                      <p className="text-gray-600">(11) 99999-9999</p>
+                      <p className="text-gray-600">(34) 99999-9999</p>
                     </div>
                   </div>
 
@@ -399,7 +386,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">E-mail</p>
-                      <p className="text-gray-600">contato@lumenix.com</p>
+                      <p className="text-gray-600">comercial@lumenixtech.com.br</p>
                     </div>
                   </div>
 
@@ -409,7 +396,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">Localização</p>
-                      <p className="text-gray-600">São Paulo, SP</p>
+                      <p className="text-gray-600">Minas Gerais, MG</p>
                     </div>
                   </div>
                 </div>
@@ -459,7 +446,7 @@ const LandingPage: React.FC = () => {
                         value={formData.contact}
                         onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-                        placeholder="seu@email.com ou (11) 99999-9999"
+                        placeholder="seu@email.com ou (34) 99999-9999"
                       />
                     </div>
 
@@ -525,9 +512,9 @@ const LandingPage: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4">Contato</h4>
               <div className="space-y-2 text-gray-400">
-                <p>(11) 99999-9999</p>
-                <p>contato@lumenix.com</p>
-                <p>São Paulo, SP</p>
+                <p>(34) 99999-9999</p>
+                <p>comercial@lumenixtech.com.br</p>
+                <p>Minas Gerais, MG</p>
               </div>
             </div>
           </div>

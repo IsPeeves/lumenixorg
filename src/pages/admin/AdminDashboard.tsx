@@ -20,35 +20,60 @@ import Logo from '../../components/Logo';
 import ClientsModule from '../../components/admin/ClientsModule';
 import ExpensesModule from '../../components/admin/ExpensesModule';
 import PortfolioModule from '../../components/admin/PortfolioModule';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 const AdminDashboard: React.FC = () => {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated, logout, user } = useAuth();
-  const { clients, expenses } = useData();
+  const { clients, expenses, loading } = useData();
 
   if (!isAuthenticated) {
     return <Navigate to="/admin" replace />;
   }
 
-  // Cálculos do dashboard
-  const totalRevenue = clients.reduce((sum, client) => sum + client.monthlyValue, 0);
-  const totalExpenses = expenses
-    .filter(expense => expense.frequency === 'Mensal')
-    .reduce((sum, expense) => sum + expense.value, 0);
+  // Verificações de segurança para evitar erros
+  const safeClients = Array.isArray(clients) ? clients : [];
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
+
+  // Cálculos do dashboard com verificações de segurança
+  const totalRevenue = safeClients.reduce((sum, client) => {
+    const value = client?.monthlyValue || 0;
+    return sum + (typeof value === 'number' ? value : 0);
+  }, 0);
+  
+  const totalExpenses = safeExpenses
+    .filter(expense => expense?.frequency === 'Mensal')
+    .reduce((sum, expense) => {
+      const amount = expense?.amount || 0;
+      return sum + (typeof amount === 'number' ? amount : 0);
+    }, 0);
+    
   const balance = totalRevenue - totalExpenses;
   
-  const pendingClients = clients.filter(client => client.paymentStatus === 'Pendente').length;
-  const overdueClients = clients.filter(client => client.paymentStatus === 'Atrasado').length;
+  const pendingClients = safeClients.filter(client => client?.paymentStatus === 'Pendente').length;
+  const overdueClients = safeClients.filter(client => client?.paymentStatus === 'Atrasado').length;
   
-  const upcomingExpenses = expenses.filter(expense => {
+  const upcomingExpenses = safeExpenses.filter(expense => {
+    if (!expense?.dueDate) return false;
     const dueDate = new Date(expense.dueDate);
     const today = new Date();
     const diffTime = dueDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 7 && diffDays >= 0 && expense.status === 'Pendente';
+    return diffDays <= 7 && diffDays >= 0 && expense?.status === 'Pendente';
   }).length;
 
+  // Mostrar loading enquanto os dados carregam
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando dados...</p>
+        </div>
+      </div>
+    );
+  }
   const menuItems = [
     { id: 'dashboard', label: 'Resumo', icon: BarChart3 },
     { id: 'clients', label: 'Clientes', icon: Users },
@@ -191,22 +216,22 @@ const AdminDashboard: React.FC = () => {
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Clientes Recentes</h3>
               <div className="space-y-3">
-                {clients.slice(0, 5).map((client) => (
-                  <div key={client.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                {safeClients.slice(0, 5).map((client) => (
+                  <div key={client?.id || Math.random()} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                     <div>
-                      <p className="font-medium text-gray-900">{client.companyName}</p>
-                      <p className="text-sm text-gray-500">Vence dia {client.dueDay}</p>
+                      <p className="font-medium text-gray-900">{client?.companyName || 'Nome não informado'}</p>
+                      <p className="text-sm text-gray-500">Vence dia {client?.dueDay || 'N/A'}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-gray-900">
-                        R$ {client.monthlyValue.toFixed(2).replace('.', ',')}
+                        R$ {(client?.monthlyValue || 0).toFixed(2).replace('.', ',')}
                       </p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        client.paymentStatus === 'Pago' ? 'bg-green-100 text-green-800' :
-                        client.paymentStatus === 'Pendente' ? 'bg-yellow-100 text-yellow-800' :
+                        client?.paymentStatus === 'Pago' ? 'bg-green-100 text-green-800' :
+                        client?.paymentStatus === 'Pendente' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {client.paymentStatus}
+                        {client?.paymentStatus || 'Pendente'}
                       </span>
                     </div>
                   </div>
@@ -314,3 +339,5 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
+
+
