@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Search, Edit, Trash2, ExternalLink, GripVertical, Image } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ExternalLink, Image } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import ImageUpload from './ImageUpload';
 
 const PortfolioModule: React.FC = () => {
-  const { projects, addProject, updateProject, deleteProject, reorderProjects } = useData();
+  const { projects, addProject, updateProject, deleteProject } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -33,7 +33,10 @@ const PortfolioModule: React.FC = () => {
     if (editingProject) {
       updateProject(editingProject.id, projectData);
     } else {
-      addProject(projectData);
+      addProject({
+        ...projectData,
+        technologies: [] // Add required technologies array
+      });
     }
 
     resetForm();
@@ -63,7 +66,7 @@ const PortfolioModule: React.FC = () => {
 
   const moveProject = (projectId: string, direction: 'up' | 'down') => {
     const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
-    const currentIndex = sortedProjects.findIndex(p => p.id === projectId);
+    const currentIndex = sortedProjects.findIndex(p => p.id.toString() === projectId);
     
     if (direction === 'up' && currentIndex > 0) {
       const newProjects = [...sortedProjects];
@@ -71,7 +74,7 @@ const PortfolioModule: React.FC = () => {
       
       // Atualizar orders
       newProjects.forEach((project, index) => {
-        updateProject(project.id, { order: index });
+        updateProject(project.id.toString(), { order: index });
       });
     } else if (direction === 'down' && currentIndex < sortedProjects.length - 1) {
       const newProjects = [...sortedProjects];
@@ -79,7 +82,7 @@ const PortfolioModule: React.FC = () => {
       
       // Atualizar orders
       newProjects.forEach((project, index) => {
-        updateProject(project.id, { order: index });
+        updateProject(project.id.toString(), { order: index });
       });
     }
   };
@@ -172,23 +175,23 @@ const PortfolioModule: React.FC = () => {
               <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{project.title}</h3>
               <p className="text-sm text-gray-600 mb-4 line-clamp-2">{project.description}</p>
               
-              <div className="flex items-center justify-between">
+              <div className="space-y-3">
                 <a
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center text-primary hover:text-primary-dark text-sm font-medium"
+                  className="flex items-center justify-center text-primary hover:text-primary-dark text-sm font-medium bg-blue-50 hover:bg-blue-100 py-2 px-3 rounded-lg transition-colors"
                 >
-                  <ExternalLink className="h-4 w-4 mr-1" />
+                  <ExternalLink className="h-4 w-4 mr-2" />
                   Ver projeto
                 </a>
                 
-                <div className="flex items-center space-x-2">
-                  <div className="flex flex-col">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1">
                     <button
-                      onClick={() => moveProject(project.id, 'up')}
+                      onClick={() => moveProject(project.id.toString(), 'up')}
                       disabled={index === 0}
-                      className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-2 rounded-lg hover:bg-gray-100 transition-colors"
                       title="Mover para cima"
                     >
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,9 +199,9 @@ const PortfolioModule: React.FC = () => {
                       </svg>
                     </button>
                     <button
-                      onClick={() => moveProject(project.id, 'down')}
+                      onClick={() => moveProject(project.id.toString(), 'down')}
                       disabled={index === filteredProjects.length - 1}
-                      className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-2 rounded-lg hover:bg-gray-100 transition-colors"
                       title="Mover para baixo"
                     >
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -207,21 +210,23 @@ const PortfolioModule: React.FC = () => {
                     </button>
                   </div>
                   
-                  <button
-                    onClick={() => handleEdit(project)}
-                    className="text-blue-600 hover:text-blue-900 p-1"
-                    title="Editar"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  
-                  <button
-                    onClick={() => deleteProject(project.id)}
-                    className="text-red-600 hover:text-red-900 p-1"
-                    title="Excluir"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => handleEdit(project)}
+                      className="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                      title="Editar"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => deleteProject(project.id.toString())}
+                      className="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                      title="Excluir"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Background with gradient -->
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3D2B5F"/>
+      <stop offset="100%" stop-color="#2E2154"/>
+    </radialGradient>
+    <radialGradient id="light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#F0F0FF"/>
+      <stop offset="100%" stop-color="#E0E0FF"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="16" height="16" rx="2" fill="url(#bg)"/>
+  
+  <!-- Central light source (representing "Lumen") -->
+  <circle cx="8" cy="8" r="4" fill="url(#light)" opacity="0.95"/>
+  
+  <!-- Inner energy core -->
+  <circle cx="8" cy="8" r="2" fill="#2E2154" opacity="0.3"/>
+  
+  <!-- Light rays emanating outward -->
+  <g stroke="#FFFFFF" stroke-width="0.3" opacity="0.8">
+    <line x1="8" y1="1.5" x2="8" y2="3.5"/>
+    <line x1="8" y1="12.5" x2="8" y2="14.5"/>
+    <line x1="1.5" y1="8" x2="3.5" y2="8"/>
+    <line x1="12.5" y1="8" x2="14.5" y2="8"/>
+    <line x1="3.5" y1="3.5" x2="4.5" y2="4.5"/>
+    <line x1="11.5" y1="11.5" x2="12.5" y2="12.5"/>
+    <line x1="12.5" y1="3.5" x2="11.5" y2="4.5"/>
+    <line x1="4.5" y1="11.5" x2="3.5" y2="12.5"/>
+  </g>
+  
+  <!-- Technology dots (automation elements) -->
+  <circle cx="4" cy="4" r="0.4" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="12" cy="4" r="0.4" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="4" cy="12" r="0.4" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="12" cy="12" r="0.4" fill="#FFFFFF" opacity="0.7"/>
+  
+  <!-- Small connecting lines (network/automation) -->
+  <g stroke="#FFFFFF" stroke-width="0.2" opacity="0.5">
+    <line x1="4" y1="4" x2="6" y2="6"/>
+    <line x1="12" y1="4" x2="10" y2="6"/>
+    <line x1="4" y1="12" x2="6" y2="10"/>
+    <line x1="12" y1="12" x2="10" y2="10"/>
+  </g>
+</svg>

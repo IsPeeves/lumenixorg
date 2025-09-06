@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Menu, X, Globe, Zap, ChevronLeft, ChevronRight, Send, Phone, Mail, MapPin, Sun, User, MessageCircle } from 'lucide-react';
+// Remove unused import
+import { Menu, X, Globe, Zap, ChevronLeft, ChevronRight, Send, Phone, Mail, MapPin, Sun, MessageCircle, Instagram, Linkedin } from 'lucide-react';
 import Logo from '../components/Logo';
 import { useData } from '../contexts/DataContext';
 
@@ -76,10 +76,6 @@ const LandingPage: React.FC = () => {
                   Contato
                 </button>
               </div>
-              <Link to="/admin" className="ml-8 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors">
-                <User className="h-4 w-4" />
-                <span>Admin</span>
-              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -111,11 +107,6 @@ const LandingPage: React.FC = () => {
                 <button onClick={() => scrollToSection('contact')} className="text-gray-700 hover:text-primary transition-colors text-left py-2">
                   Contato
                 </button>
-                <div className="border-t border-gray-200 my-2"></div>
-                <Link to="/admin" className="text-gray-700 hover:text-primary transition-colors text-left py-2 flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Acessar Painel</span>
-                </Link>
               </div>
             </motion.div>
           )}
@@ -140,18 +131,26 @@ const LandingPage: React.FC = () => {
         
         {/* Floating Particles */}
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-3 h-3 bg-primary/80 rounded-full opacity-60"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            ></div>
-          ))}
+          {[...Array(20)].map((_, i) => {
+            // Use index-based positioning for consistent placement
+            const leftPos = (i * 17 + 13) % 100; // Deterministic positioning
+            const topPos = (i * 23 + 7) % 100;
+            const duration = 3 + (i % 4); // Cycle through 3-6s durations
+            const delay = (i % 4) * 0.5; // Staggered delays
+            
+            return (
+              <div
+                key={i}
+                className="absolute w-3 h-3 bg-primary/80 rounded-full opacity-60"
+                style={{
+                  left: `${leftPos}%`,
+                  top: `${topPos}%`,
+                  animation: `float ${duration}s ease-in-out infinite`,
+                  animationDelay: `${delay}s`
+                }}
+              ></div>
+            );
+          })}
         </div>
         
         {/* Circuit Lines */}
@@ -177,19 +176,27 @@ const LandingPage: React.FC = () => {
         
         {/* Code Rain Effect */}
         <div className="absolute inset-0 opacity-30">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute text-xs font-mono text-primary"
-              style={{
-                left: `${i * 10}%`,
-                animation: `codeRain ${5 + Math.random() * 3}s linear infinite`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            >
-              {['<div>', '</div>', 'function()', 'const x =', 'return', 'import', 'export'][Math.floor(Math.random() * 7)]}
-            </div>
-          ))}
+          {[...Array(10)].map((_, i) => {
+            // Use deterministic values for consistent animation
+            const duration = 5 + (i % 3); // Cycle through 5-7s durations
+            const delay = (i % 5) * 0.4; // Staggered delays
+            const codeSnippets = ['<div>', '</div>', 'function()', 'const x =', 'return', 'import', 'export'];
+            const snippet = codeSnippets[i % codeSnippets.length]; // Deterministic code selection
+            
+            return (
+              <div
+                key={i}
+                className="absolute text-xs font-mono text-primary"
+                style={{
+                  left: `${i * 10}%`,
+                  animation: `codeRain ${duration}s linear infinite`,
+                  animationDelay: `${delay}s`
+                }}
+              >
+                {snippet}
+              </div>
+            );
+          })}
         </div>
       </div>
       
@@ -595,6 +602,28 @@ const LandingPage: React.FC = () => {
                 <p>(34) 98404-6131</p>
                 <p>comercial@lumenixtech.com.br</p>
                 <p>Minas Gerais, MG</p>
+              </div>
+              
+              <div className="mt-6">
+                <h4 className="font-semibold mb-4 text-primary">Redes Sociais</h4>
+                <div className="flex space-x-4">
+                   <a
+                     href="https://www.instagram.com/lumenix.tech/"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="flex items-center justify-center w-10 h-10 bg-primary hover:bg-primary-dark text-white rounded-full transition-all duration-300 hover:scale-110"
+                   >
+                     <Instagram size={20} />
+                   </a>
+                   <a
+                     href="https://www.linkedin.com/in/lumenix-tech-01a555381/"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="flex items-center justify-center w-10 h-10 bg-primary hover:bg-primary-dark text-white rounded-full transition-all duration-300 hover:scale-110"
+                   >
+                     <Linkedin size={20} />
+                   </a>
+                 </div>
               </div>
             </div>
           </div>

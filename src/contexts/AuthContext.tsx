@@ -33,12 +33,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkAuth = () => {
       try {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('accessToken');
+        
+        // Só considera autenticado se tiver tanto usuário quanto token
+        if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
+        } else {
+          // Se não tiver token, limpa tudo
+          localStorage.removeItem('user');
+          localStorage.removeItem('accessToken');
         }
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
         localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
       } finally {
         setIsLoading(false);
       }
@@ -63,9 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: data.error || 'Erro no login' };
       }
 
-      // Salvar usuário no estado e localStorage
+      // Salvar usuário e token no estado e localStorage
       setUser(data.user);
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('accessToken', data.accessToken);
       
       return { error: null };
     } catch (error) {
@@ -78,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setUser(null);
       localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
     } catch (error) {
       console.error('Erro no logout:', error);
     }

@@ -113,7 +113,12 @@ const ExpensesModule: React.FC = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (expenseId: number) => {
+  const handleDelete = async (expenseId: string): Promise<void> => {
+
+
+
+
+
     if (window.confirm('Tem certeza que deseja excluir esta despesa?')) {
       try {
         await deleteExpense(expenseId.toString());
@@ -226,8 +231,8 @@ const ExpensesModule: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Expenses Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Expenses Table - Desktop */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {filteredExpenses.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Nenhuma despesa encontrada</p>
@@ -299,7 +304,7 @@ const ExpensesModule: React.FC = () => {
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(expense.id)}
+                            onClick={() => deleteExpense(expense?.id?.toString() || '')}
                             className="text-red-600 hover:text-red-900"
                             title="Excluir"
                           >
@@ -312,6 +317,71 @@ const ExpensesModule: React.FC = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+
+      {/* Expenses Cards - Mobile */}
+      <div className="md:hidden">
+        {filteredExpenses.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <p className="text-gray-500">Nenhuma despesa encontrada</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredExpenses.map((expense, index) => {
+              // Verificações de segurança para cada expense
+              const safeAmount = expense?.amount || 0;
+              const safeDescription = expense?.description || 'Sem descrição';
+              const safeCategory = expense?.category || 'Sem categoria';
+              const safeDate = expense?.date || new Date().toISOString().split('T')[0];
+              
+              return (
+                <motion.div
+                  key={expense?.id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900">{safeDescription}</h3>
+                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {new Date(safeDate).toLocaleDateString('pt-BR')}
+                      </div>
+                    </div>
+                    {getCategoryBadge(safeCategory)}
+                  </div>
+                  
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Valor</p>
+                    <p className="text-xl font-bold text-red-600">
+                      R$ {(typeof safeAmount === 'number' ? safeAmount : parseFloat(safeAmount) || 0).toFixed(2).replace('.', ',')}
+                    </p>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => handleEdit(expense)}
+                      className="flex items-center space-x-1 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors flex-1 justify-center"
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span>Editar</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => deleteExpense(expense?.id?.toString() || '')}
+                      className="flex items-center space-x-1 px-3 py-2 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors flex-1 justify-center"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Excluir</span>
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>

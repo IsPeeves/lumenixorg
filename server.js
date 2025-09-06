@@ -38,10 +38,12 @@ app.use(helmet({
 // Configurar CORS de forma mais segura
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] // Substitua pelo seu domínio em produção
+    ? process.env.ALLOWED_ORIGINS?.split(',') || ['https://lumenixtech.com.br', 'https://www.lumenixtech.com.br']
     : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
 

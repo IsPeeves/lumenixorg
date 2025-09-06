@@ -37,16 +37,20 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 // URL base da API - usando variável de ambiente do Vite
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Função helper para fazer requisições com tratamento robusto
 const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
   try {
     console.log(`🔄 API Request: ${options.method || 'GET'} ${API_BASE_URL}${endpoint}`);
     
+    // Obter token do localStorage
+    const token = localStorage.getItem('accessToken');
+    
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -141,13 +145,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const [clientsResult, expensesResult, projectsResult] = results;
       const errors: { clients?: string; expenses?: string; projects?: string } = {};
-      let hasAnyData = false;
+// Remove hasAnyData since it's not being used
 
       // Processar resultado dos clientes
       if (clientsResult.status === 'fulfilled') {
         console.log('✅ Clientes carregados:', clientsResult.value?.length || 0);
         setClients(Array.isArray(clientsResult.value) ? clientsResult.value : []);
-        hasAnyData = true;
+// Remove hasAnyData assignment since the variable is not declared or used
       } else {
         console.error('❌ Erro ao carregar clientes:', clientsResult.reason?.message);
         errors.clients = clientsResult.reason?.message || 'Erro ao carregar clientes';
@@ -158,7 +162,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (expensesResult.status === 'fulfilled') {
         console.log('✅ Despesas carregadas:', expensesResult.value?.length || 0);
         setExpenses(Array.isArray(expensesResult.value) ? expensesResult.value : []);
-        hasAnyData = true;
+// Remove hasAnyData assignment since it's not being used
       } else {
         console.error('❌ Erro ao carregar despesas:', expensesResult.reason?.message);
         errors.expenses = expensesResult.reason?.message || 'Erro ao carregar despesas';
@@ -169,7 +173,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (projectsResult.status === 'fulfilled') {
         console.log('✅ Projetos carregados:', projectsResult.value?.length || 0);
         setProjects(Array.isArray(projectsResult.value) ? projectsResult.value : []);
-        hasAnyData = true;
+// Remove hasAnyData assignment since it's not being used
       } else {
         console.error('❌ Erro ao carregar projetos:', projectsResult.reason?.message);
         errors.projects = projectsResult.reason?.message || 'Erro ao carregar projetos';

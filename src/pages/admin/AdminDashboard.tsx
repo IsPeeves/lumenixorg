@@ -12,7 +12,8 @@ import {
   TrendingUp,
   TrendingDown,
   AlertCircle,
-  DollarSign
+  DollarSign,
+  Home
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
@@ -320,8 +321,16 @@ const AdminDashboard: React.FC = () => {
             <h1 className="text-xl font-semibold text-gray-900">
               {menuItems.find(item => item.id === activeModule)?.label || 'Dashboard'}
             </h1>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <a 
+                href="/" 
+                className="flex items-center space-x-1 md:space-x-2 px-2 md:px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                title="Voltar à página principal"
+              >
+                <Home className="h-4 w-4" />
+                <span className="text-sm font-medium hidden sm:inline">Página Principal</span>
+              </a>
+              <span className="text-xs md:text-sm text-gray-500 hidden sm:inline">
                 {new Date().toLocaleDateString('pt-BR')}
               </span>
             </div>
@@ -329,7 +338,7 @@ const AdminDashboard: React.FC = () => {
         </header>
 
         {/* Content */}
-        <main className="p-6">
+        <main className="p-4 md:p-6">
           {renderContent()}
         </main>
       </div>

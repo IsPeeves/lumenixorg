@@ -251,8 +251,8 @@ const handleConfirmPayment = async (paymentData: PaymentConfirmationData) => {
         </motion.div>
       </div>
 
-      {/* Clients Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* Clients Table - Desktop */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -354,6 +354,90 @@ const handleConfirmPayment = async (paymentData: PaymentConfirmationData) => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Clients Cards - Mobile */}
+      <div className="md:hidden space-y-4">
+        {filteredClients.map((client, index) => (
+          <motion.div
+            key={client.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+          >
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">{client.companyName}</h3>
+                <p className="text-sm text-gray-500">
+                  Cadastrado em {new Date(client.created_at).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+              {getStatusBadge(client.paymentStatus)}
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Valor Mensal</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  R$ {(typeof client?.monthlyValue === 'number' ? client.monthlyValue : parseFloat(client?.monthlyValue) || 0).toFixed(2).replace('.', ',')}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">Vencimento</p>
+                <p className="text-lg font-semibold text-gray-900">Dia {client.dueDay}</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
+              {/* Botão de Confirmar Pagamento - apenas para status Pendente ou Atrasado */}
+              {client.paymentStatus !== 'Pago' && (
+                <button
+                  onClick={() => handlePaymentConfirmation(client)}
+                  className="flex items-center space-x-1 px-3 py-2 text-sm bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  <span>Confirmar</span>
+                </button>
+              )}
+              
+              {/* Botão de Histórico */}
+              <button
+                onClick={() => handleViewHistory(client)}
+                className="flex items-center space-x-1 px-3 py-2 text-sm bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
+              >
+                <History className="h-4 w-4" />
+                <span>Histórico</span>
+              </button>
+              
+              <a
+                href={client.websiteLink || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>Site</span>
+              </a>
+              
+              <button
+                onClick={() => handleEdit(client)}
+                className="flex items-center space-x-1 px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Edit className="h-4 w-4" />
+                <span>Editar</span>
+              </button>
+              
+              <button
+                onClick={() => deleteClient(client.id.toString())}
+                className="flex items-center space-x-1 px-3 py-2 text-sm bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Excluir</span>
+              </button>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Modal */}
